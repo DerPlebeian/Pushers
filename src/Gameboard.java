@@ -69,7 +69,7 @@ public class Gameboard {
                     }
                     // On peut aller devant uniquement si la case est vide
                     // On regarde just devant
-                    if(board[newRow][col] == EMPTY) {
+                    if(isInBoard(newRow, col) && board[newRow][col] == EMPTY) {
                         moves.add(new Move(row, col, newRow, col));
                     }
                 } else if (piece == pushed) {
@@ -91,7 +91,7 @@ public class Gameboard {
                         moves.add(new Move(row, col, newRow, newCol));
                     }
                     // On regarde si il y a un pousseur derrière pour aller devant
-                    if(board[rowPusher][col] == pusher && board[newRow][col] == EMPTY) {
+                    if( isInBoard(rowPusher, col) && isInBoard(newRow, col) && board[rowPusher][col] == pusher && board[newRow][col] == EMPTY) {
                         moves.add(new Move(row, col, newRow, col));
                     }
                 }
@@ -155,6 +155,20 @@ public class Gameboard {
             }
         }
         return null;
+    }
+
+    public boolean isGameOver() {
+        // On vérifie si un des deux joueurs a perdu tous ses pousseurs
+        boolean redPusher = false;
+        boolean blackPusher = false;
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                if (board[row][col] == RED_PUSHER) redPusher = true;
+                if (board[row][col] == BLACK_PUSHER) blackPusher = true;
+            }
+        }
+        return pieceArrived() != null || !redPusher || !blackPusher;
     }
 
     public void play(Move move) {
