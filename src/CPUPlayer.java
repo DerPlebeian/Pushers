@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 class CPUPlayer {
 
-    private final int MAX_DEPTH = 5;
+    private final int MAX_DEPTH = 8;
 
     private int numExploredNodes;
     private Color color;
@@ -107,7 +107,7 @@ class CPUPlayer {
             // On retourne le score de la grille
             return board.evaluate(color);
         }
-        // On définit le symbole en fonction de si on simule le coup de la machine ou du joueur adverse
+        // On définit la couleur en fonction de si on simule le coup de la machine ou du joueur adverse
         Color currentColor = isMaximum ? color : (color == Color.RED ? Color.BLACK : Color.RED);
         // Si on cherche le maximum
         if (isMaximum) {
