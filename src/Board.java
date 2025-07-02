@@ -152,31 +152,6 @@ public class Board {
         return 0;
     }
 
-    public List<Move> generateValidMoves(Jeton jeton) {
-        List<Move> validMoves = new ArrayList<>();
-
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                // Vérifie si la case contient un jeton du bon type
-                if (!matchesJeton(board[r][c], jeton))
-                    continue;
-
-                for (Direction dir : Direction.values()) {
-                    Move m = new Move();
-                    try {
-                        play(m); // essaie de jouer le coup
-                        validMoves.add(m);
-                        //undoMove(m); // remet l’état original du plateau (à coder)
-                    } catch (IllegalArgumentException e) {
-                        // Ce move n’est pas valide → on l’ignore
-                    }
-                }
-            }
-        }
-
-        return validMoves;
-    }
-
     private boolean matchesJeton(int code, Jeton jeton) {
         return switch (jeton) {
             case RedPousseur -> code == 4;
@@ -214,5 +189,66 @@ public class Board {
         }
 
         return false;
+    }
+
+    public List<Move> generateValidMoves(Jeton jeton) {
+        List<Move> validMoves = new ArrayList<>();
+
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                if (!matchesJeton(board[r][c], jeton))
+                    continue;
+
+                for (Direction dir : Direction.values()) {
+                    int[] destination = computeDestination(r, c, dir, jeton);
+                    if (destination == null)
+                        continue;
+
+                    int destRow = destination[0];
+                    int destCol = destination[1];
+
+                    if (destRow < 0 || destRow > 7 || destCol < 0 || destCol > 7)
+                        continue;
+
+                    Move move = new Move(destRow, destCol, dir, jeton, cloneBoard(board));
+
+                    try {
+                        play(move); // si le coup est valide...
+                        validMoves.add(move);
+                        board = move.getOldPosition(); // rétablir le plateau original
+                    } catch (IllegalArgumentException e) {
+                        // coup invalide, on ignore
+                    }
+                }
+            }
+        }
+
+        return validMoves;
+    }
+
+    private int[] computeDestination(int r, int c, Direction dir, Jeton jeton) {
+        int dr = 0, dc = 0;
+
+        switch (dir) {
+            case FORWARD -> dr = (jeton == Jeton.RedPousse || jeton == Jeton.RedPousseur) ? 1 : -1;
+            case LEFT -> {
+                dr = (jeton == Jeton.RedPousse || jeton == Jeton.RedPousseur) ? 1 : -1;
+                dc = 1;
+            }
+            case RIGHT -> {
+                dr = (jeton == Jeton.RedPousse || jeton == Jeton.RedPousseur) ? 1 : -1;
+                dc = -1;
+            }
+        }
+
+        return new int[] { r + dr, c + dc };
+    }
+
+    private int[][] cloneBoard(int[][] original) {
+        int[][] copy = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            System.arraycopy(original[i], 0, copy[i], 0, 8);
+        }
+        return copy;
     }
 }
