@@ -147,10 +147,10 @@ public class Gameboard {
 
     public Color pieceArrived() {
         for(int col=0; col<BOARD_SIZE; col++) {
-            if(board[0][col] == BLACK_PUSHER || board[0][col] == BLACK_PUSHED) {
+            if(board[0][col] == RED_PUSHER || board[0][col] == RED_PUSHED) {
                 return Color.BLACK;
             }
-            if(board[BOARD_SIZE-1][col] == RED_PUSHER || board[BOARD_SIZE-1][col] == RED_PUSHED) {
+            if(board[BOARD_SIZE-1][col] == BLACK_PUSHER || board[BOARD_SIZE-1][col] == BLACK_PUSHED) {
                 return Color.RED;
             }
         }
@@ -162,11 +162,16 @@ public class Gameboard {
         boolean redPusher = false;
         boolean blackPusher = false;
 
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if (board[row][col] == RED_PUSHER) redPusher = true;
-                if (board[row][col] == BLACK_PUSHER) blackPusher = true;
+        int row = 0;
+        while (row < BOARD_SIZE && !(redPusher && blackPusher)) {
+            int col = 0;
+            while (col < BOARD_SIZE && !(redPusher && blackPusher)) {
+                int value = board[row][col];
+                if (value == RED_PUSHER) redPusher = true;
+                if (value == BLACK_PUSHER) blackPusher = true;
+                col++;
             }
+            row++;
         }
         return pieceArrived() != null || !redPusher || !blackPusher;
     }
