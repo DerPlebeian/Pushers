@@ -31,7 +31,7 @@ public class Move {
 
     @Override
     public String toString() {
-        return convertNumberToLetter(fromCol) + (fromRow+1) + "-" + convertNumberToLetter(toCol) + (toRow+1);
+        return convertNumberToLetter(fromCol) + (8-fromRow) + "-" + convertNumberToLetter(toCol) + (8-toRow);
     }
 
     private String convertNumberToLetter(int i) {

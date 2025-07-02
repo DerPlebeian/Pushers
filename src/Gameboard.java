@@ -5,12 +5,12 @@ public class Gameboard {
     // Pousseur : peut avancer devant et en diagonale, peut attaquer un ennemi uniquement en diagonale
     // Poussé : peut avant devant et en diagonale uniquement si un pousseur se trouve derrière lui dans la même direction, peut attaquer un ennemi uniquement en diagonale si un pousseur se trouve derrière lui
 
-    final int EMPTY = 0;
-    final int BLACK_PUSHED = 1;
-    final int BLACK_PUSHER = 2;
-    final int RED_PUSHED = 3;
-    final int RED_PUSHER = 4;
-    final int BOARD_SIZE = 8;
+    static final int EMPTY = 0;
+    static final int BLACK_PUSHED = 1;
+    static final int BLACK_PUSHER = 2;
+    static final int RED_PUSHED = 3;
+    static final int RED_PUSHER = 4;
+    static final int BOARD_SIZE = 8;
 
     private int[][] board;
 
@@ -183,6 +183,34 @@ public class Gameboard {
             System.arraycopy(board[row], 0, newBoard[row], 0, BOARD_SIZE);
         }
         return new Gameboard(newBoard);
+    }
+
+    public int[][] getBoard() {
+        return board;
+    }
+
+    public static Gameboard syncGameboard(String boardString) {
+        String[] boardValues = boardString.trim().split(" ");
+        int[][] board = new int[8][8];
+        int x = 0, y = 0;
+        for (String value : boardValues) {
+            board[y][x] = Integer.parseInt(value);
+            x++;
+            if (x == BOARD_SIZE) {
+                x = 0;
+                y++;
+            }
+        }
+        return new Gameboard(board);
+    }
+
+    public void printBoard() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+        }
     }
 }
 

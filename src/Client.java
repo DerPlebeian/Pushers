@@ -25,59 +25,39 @@ public class Client {
                 System.out.println(cmd);
                 // Debut de la partie en joueur blanc
                 if(cmd == '1'){
-                    bot = new CPUPlayer(Color.BLACK);
+                    bot = new CPUPlayer(Color.RED);
                     byte[] aBuffer = new byte[1024];
 
                     int size = input.available();
                     //System.out.println("size " + size);
+                    // On importe le plateau de jeu
                     input.read(aBuffer,0,size);
                     String s = new String(aBuffer).trim();
                     System.out.println(s);
-                    String[] boardValues;
-                    boardValues = s.split(" ");
-                    int x=0,y=0;
-                    for(int i=0; i<boardValues.length;i++){
-                        board[y][x] = Integer.parseInt(boardValues[i]);
-                        x++;
-                        if(x == 8){
-                            x = 0;
-                            y++;
-                        }
-                    }
+                    gameboard = Gameboard.syncGameboard(s);
+
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
-                    String move = null;
-                    //move = console.readLine();
-                    gameboard = new Gameboard(board);
-                    Move bestMove = bot.getNextMoveAB(gameboard).get(0);
+
+                    // On génère le meilleur coup
+                    Move bestMove = bot.getBestMove(gameboard);
                     gameboard.play(bestMove);
-                    move = bestMove.toString();
-                    System.out.println("Bot : " + move);
-                    output.write(move.getBytes(),0,move.length());
+                    System.out.println("Bot : " + bestMove);
+                    output.write(bestMove.toString().getBytes(),0,bestMove.toString().length());
                     output.flush();
                 }
                 // Debut de la partie en joueur Noir
                 if(cmd == '2'){
-                    bot = new CPUPlayer(Color.RED);
+                    bot = new CPUPlayer(Color.BLACK);
                     System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des blancs");
                     byte[] aBuffer = new byte[1024];
 
                     int size = input.available();
                     //System.out.println("size " + size);
+                    // On importe le plateau de jeu
                     input.read(aBuffer,0,size);
                     String s = new String(aBuffer).trim();
                     System.out.println(s);
-                    String[] boardValues;
-                    boardValues = s.split(" ");
-                    int x=0,y=0;
-                    for(int i=0; i<boardValues.length;i++){
-                        board[y][x] = Integer.parseInt(boardValues[i]);
-                        x++;
-                        if(x == 8){
-                            x = 0;
-                            y++;
-                        }
-                    }
-                    gameboard = new Gameboard(board);
+                    gameboard = Gameboard.syncGameboard(s);
                 }
                 // Le serveur demande le prochain coup
                 // Le message contient aussi le dernier coup joue.
@@ -85,30 +65,29 @@ public class Client {
                     byte[] aBuffer = new byte[16];
 
                     int size = input.available();
-                    System.out.println("size :" + size);
+                    // System.out.println("size :" + size);
+                    // On importe le dernier coup joué par le serveur
                     input.read(aBuffer,0,size);
-
                     String s = new String(aBuffer);
                     System.out.println("Dernier coup :"+ s);
+                    Move lastMove = Move.getMoveFromString(s);
+                    gameboard.play(lastMove);
+
+                    // On génère le meilleur coup
                     System.out.println("Entrez votre coup : ");
-                    String move = null;
-                    //move = console.readLine();
-                    gameboard.play(Move.getMoveFromString(s));
-                    Move bestMove = bot.getNextMoveAB(gameboard).get(0);
+                    Move bestMove = bot.getBestMove(gameboard);
                     gameboard.play(bestMove);
-                    move = bestMove.toString();
-                    System.out.println("Bot : " + move);
-                    output.write(move.getBytes(),0,move.length());
+                    System.out.println("Bot : " + bestMove);
+                    output.write(bestMove.toString().getBytes(),0,bestMove.toString().length());
                     output.flush();
                 }
                 // Le dernier coup est invalide
                 if(cmd == '4'){
                     System.out.println("Coup invalide, entrez un nouveau coup : ");
-                    String move = null;
-                    Move bestMove = bot.getNextMoveAB(gameboard).get(0);
-                    move = bestMove.toString();
-                    System.out.println("Bot : " + move);
-                    output.write(move.getBytes(),0,move.length());
+                    // C'est la sauce
+                    Move bestMove = bot.getBestMove(gameboard);
+                    System.out.println("Bot : " + bestMove);
+                    output.write(bestMove.toString().getBytes(),0,bestMove.toString().length());
                     output.flush();
                 }
                 // La partie est terminée
@@ -122,7 +101,6 @@ public class Client {
                     move = console.readLine();
                     output.write(move.getBytes(),0,move.length());
                     output.flush();
-
                 }
             }
         }

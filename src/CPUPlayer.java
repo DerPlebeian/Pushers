@@ -12,11 +12,15 @@ class CPUPlayer {
         color = cpu;
     }
 
+    public Move getBestMove(Gameboard gameboard) {
+        return getNextMoveAB(gameboard).getFirst();
+    }
+
     public int  getNumOfExploredNodes(){
         return numExploredNodes;
     }
 
-    public ArrayList<Move> getNextMoveMinMax(Gameboard board) {
+    private ArrayList<Move> getNextMoveMinMax(Gameboard board) {
         numExploredNodes = 0;
         ArrayList<Move> bestNextMoves = new ArrayList<>();
         int bestScore = Integer.MIN_VALUE;
@@ -72,11 +76,12 @@ class CPUPlayer {
     // Retourne la liste des coups possibles.  Cette liste contient
     // plusieurs coups possibles si et seuleument si plusieurs coups
     // ont le même score.
-    public ArrayList<Move> getNextMoveAB(Gameboard board){
+    private ArrayList<Move> getNextMoveAB(Gameboard board){
         numExploredNodes = 0;
         ArrayList<Move> bestNextMoves = new ArrayList<>();
         int bestScore = Integer.MIN_VALUE;
         // On parcourt tous les coups possibles de la grille
+
         for (Move move : board.getAllPossibleMove(color)) {
             // Pour chaque coup, on copie la grille
             Gameboard copyBoard = board.copy();
