@@ -35,6 +35,8 @@ public class Client {
                     String s = new String(aBuffer).trim();
                     System.out.println(s);
                     gameboard = Gameboard.syncGameboard(s);
+                    // On sync aussi le bot
+                    bot.initializeTree(gameboard);
 
                     System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
 
@@ -48,7 +50,7 @@ public class Client {
                 // Debut de la partie en joueur Noir
                 if(cmd == '2'){
                     bot = new CPUPlayer(Color.BLACK);
-                    System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des blancs");
+                    System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des rouges");
                     byte[] aBuffer = new byte[1024];
 
                     int size = input.available();
@@ -58,6 +60,8 @@ public class Client {
                     String s = new String(aBuffer).trim();
                     System.out.println(s);
                     gameboard = Gameboard.syncGameboard(s);
+                    // On sync aussi le bot
+                    bot.initializeTree(gameboard);
                 }
                 // Le serveur demande le prochain coup
                 // Le message contient aussi le dernier coup joue.
@@ -72,6 +76,8 @@ public class Client {
                     System.out.println("Dernier coup :"+ s);
                     Move lastMove = Move.getMoveFromString(s);
                     gameboard.play(lastMove);
+                    // On sync avec le bot
+                    bot.advanceTree(lastMove, gameboard);
 
                     // On génère le meilleur coup
                     System.out.println("Entrez votre coup : ");

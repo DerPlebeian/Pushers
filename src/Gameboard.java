@@ -1,40 +1,41 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Gameboard {
 
     // Pousseur : peut avancer devant et en diagonale, peut attaquer un ennemi uniquement en diagonale
     // Poussé : peut avant devant et en diagonale uniquement si un pousseur se trouve derrière lui dans la même direction, peut attaquer un ennemi uniquement en diagonale si un pousseur se trouve derrière lui
 
-    static final int EMPTY = 0;
-    static final int BLACK_PUSHED = 1;
-    static final int BLACK_PUSHER = 2;
-    static final int RED_PUSHED = 3;
-    static final int RED_PUSHER = 4;
-    static final int BOARD_SIZE = 8;
+    static final byte EMPTY = 0;
+    static final byte BLACK_PUSHED = 1;
+    static final byte BLACK_PUSHER = 2;
+    static final byte RED_PUSHED = 3;
+    static final byte RED_PUSHER = 4;
+    static final byte BOARD_SIZE = 8;
 
-    private int[][] board;
+    private byte[][] board;
 
-    public Gameboard(int[][] board) {
+    public Gameboard(byte[][] board) {
         this.board = board;
     }
 
     public Gameboard() {
-        board = new int[BOARD_SIZE][BOARD_SIZE];
-        for (int col=0; col<BOARD_SIZE; col++) {
+        board = new byte[BOARD_SIZE][BOARD_SIZE];
+        for (byte col=0; col<BOARD_SIZE; col++) {
             board[0][col] = BLACK_PUSHER;
         }
-        for (int col=0; col<BOARD_SIZE; col++) {
+        for (byte col=0; col<BOARD_SIZE; col++) {
             board[1][col] = BLACK_PUSHED;
         }
-        for (int row=2; row<BOARD_SIZE-2; row++) {
+        for (byte row=2; row<BOARD_SIZE-2; row++) {
             for (int col=0; col<BOARD_SIZE; col++) {
                 board[row][col] = EMPTY;
             }
         }
-        for (int col=0; col<BOARD_SIZE; col++) {
+        for (byte col=0; col<BOARD_SIZE; col++) {
             board[BOARD_SIZE-2][col] = RED_PUSHED;
         }
-        for (int col=0; col<BOARD_SIZE; col++) {
+        for (byte col=0; col<BOARD_SIZE; col++) {
             board[BOARD_SIZE-1][col] = RED_PUSHER;
         }
     }
@@ -45,25 +46,25 @@ public class Gameboard {
     public ArrayList<Move> getAllPossibleMove(Color color) {
         ArrayList<Move> moves = new ArrayList<>();
 
-        int pusher = color == Color.RED ? RED_PUSHER : BLACK_PUSHER;
-        int pushed = color == Color.RED ? RED_PUSHED : BLACK_PUSHED;
-        int direction = color == Color.RED ? -1 : 1;
+        byte pusher = color == Color.RED ? RED_PUSHER : BLACK_PUSHER;
+        byte pushed = color == Color.RED ? RED_PUSHED : BLACK_PUSHED;
+        byte direction = (byte) (color == Color.RED ? -1 : 1);
 
-        for(int row = 0; row<BOARD_SIZE; row++) {
-            for(int col = 0; col<BOARD_SIZE; col++) {
-                int piece = board[row][col];
+        for(byte row = 0; row<BOARD_SIZE; row++) {
+            for(byte col = 0; col<BOARD_SIZE; col++) {
+                byte piece = board[row][col];
                 // Si la pièce est un pousseur de notre couleur
                 if(piece == pusher) {
-                    int newRow = row+direction;
-                    int newCol;
+                    byte newRow = (byte) (row+direction);
+                    byte newCol;
                     // On peut toujours aller à gauche ou à droite sauf si c'est des alliés
                     // On regarde à gauche
-                    newCol = col-1;
+                    newCol = (byte) (col-1);
                     if(isInBoard(newRow, newCol) && board[newRow][newCol] != pusher && board[newRow][newCol] != pushed) {
                         moves.add(new Move(row, col, newRow, newCol));
                     }
                     // On regarde à droite
-                    newCol = col+1;
+                    newCol = (byte) (col+1);
                     if(isInBoard(newRow, newCol) && board[newRow][newCol] != pusher && board[newRow][newCol] != pushed) {
                         moves.add(new Move(row, col, newRow, newCol));
                     }
@@ -73,20 +74,20 @@ public class Gameboard {
                         moves.add(new Move(row, col, newRow, col));
                     }
                 } else if (piece == pushed) {
-                    int rowPusher = row-direction;
-                    int newRow = row+direction;
-                    int colPusher, newCol;
+                    byte rowPusher = (byte) (row-direction);
+                    byte newRow = (byte) (row+direction);
+                    byte colPusher, newCol;
                     // On regarde derrière le poussé pour voir si il y a un pousseur
                     // Si il y a un pousseur, on regarde les cases devant voir si il y a soit un ennemi en diagonale, soit rien devant
                     // On regarde si il y a un pousseur à gauche pour aller à droite
-                    colPusher = col-1;
-                    newCol = col+1;
+                    colPusher = (byte) (col-1);
+                    newCol = (byte) (col+1);
                     if(isInBoard(rowPusher, colPusher) && isInBoard(newRow, newCol) && board[rowPusher][colPusher] == pusher && board[newRow][newCol] != pusher && board[newRow][newCol] != pushed) {
                         moves.add(new Move(row, col, newRow, newCol));
                     }
                     // On regarde si il y a un pousseur à droite pour aller à gauche
-                    colPusher = col+1;
-                    newCol = col-1;
+                    colPusher = (byte) (col+1);
+                    newCol = (byte) (col-1);
                     if(isInBoard(rowPusher, colPusher) && isInBoard(newRow, newCol) && board[rowPusher][colPusher] == pusher && board[newRow][newCol] != pusher && board[newRow][newCol] != pushed) {
                         moves.add(new Move(row, col, newRow, newCol));
                     }
@@ -124,34 +125,92 @@ public class Gameboard {
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 int piece = board[row][col];
-
                 if (piece == pusher) {
-                    score += 10;
-                    score += (color == Color.RED ? 7-row : row);
-                } else if (piece == pushed) {
+                    score += 10; // base
+                    score += (color == Color.RED ? 7 - row : row); // proximité
+                    score += evaluateCaptures(row, col, pusher, pushed, enemyPusher, enemyPushed);
+                }
+                else if (piece == pushed) {
                     score += 5;
-                    score += (color == Color.RED ? 7-row : row);
-                } else if (piece == enemyPusher) {
+                    score += (color == Color.RED ? 7 - row : row);
+                    if (isPushedBlocked(row, col, color)) score -= 2;
+                    score += evaluateCaptures(row, col, pusher, pushed, enemyPusher, enemyPushed);
+                }
+                else if (piece == enemyPusher) {
                     noEnemyLeft = false;
                     score -= 10;
-                    score -= (color == Color.RED ? row : 7-row);
-                } else if (piece == enemyPushed) {
+                    score -= (color == Color.RED ? row : 7 - row);
+                    score -= evaluateCaptures(row, col, enemyPusher, enemyPushed, pusher, pushed);
+                }
+                else if (piece == enemyPushed) {
                     noEnemyLeft = false;
                     score -= 5;
-                    score -= (color == Color.RED ? row : 7-row);
+                    score -= (color == Color.RED ? row : 7 - row);
+                    if (isPushedBlocked(row, col, Color.getEnemyColor(color))) score += 2;
+                    score -= evaluateCaptures(row, col, enemyPusher, enemyPushed, pusher, pushed);
                 }
             }
         }
         return noEnemyLeft ? Integer.MAX_VALUE : score;
     }
 
+    private int evaluateCaptures(int row, int col , int pusher, int pushed, int enemyPusher, int enemyPushed) {
+        int PUSHER_POINT = 20;
+        int PUSHED_POINT = 10;
+
+        int piece = board[row][col];
+        int direction = (pusher == RED_PUSHER) ? -1 : 1;
+        int captureScore = 0;
+
+        if(piece == pusher) {
+            if(isInBoard(row+direction, col-1)) {
+                if(board[row+direction][col-1]==enemyPushed) captureScore+=PUSHED_POINT;
+                if(board[row+direction][col-1]==enemyPusher) captureScore+=PUSHER_POINT;
+            }
+            if(isInBoard(row+direction, col+1)) {
+                if(board[row+direction][col+1]==enemyPushed) captureScore+=PUSHED_POINT;
+                if(board[row+direction][col+1]==enemyPusher) captureScore+=PUSHER_POINT;
+            }
+        } else if (piece == pushed) {
+            if(isInBoard(row-direction, col-1) && isInBoard(row+direction, col+1) && board[row-direction][col-1]==pusher) {
+                if(board[row+direction][col+1]==enemyPushed) captureScore+=PUSHED_POINT;
+                if(board[row+direction][col+1]==enemyPusher) captureScore+=PUSHER_POINT;
+            }
+            if(isInBoard(row-direction, col+1) && isInBoard(row+direction, col-1) && board[row-direction][col+1]==pusher) {
+                if(board[row+direction][col-1]==enemyPushed) captureScore+=PUSHED_POINT;
+                if(board[row+direction][col-1]==enemyPusher) captureScore+=PUSHER_POINT;
+            }
+        }
+        return captureScore;
+    }
+
+    // Pour une position donnée, regarde si la pièce à cette position est bloqué
+    // On appelle cette fonction uniquement pour les pushed car un pusher n'est jamais bloqué
+    private boolean isPushedBlocked(int row, int col, Color color) {
+        int direction = (color == Color.RED) ? -1 : 1;
+        byte pusher = (color == Color.RED) ? RED_PUSHER : BLACK_PUSHER;
+        ArrayList<Byte> freeDiagonalCase = (color == Color.RED) ?  new ArrayList<>(Arrays.asList(BLACK_PUSHED,BLACK_PUSHER, EMPTY)) : new ArrayList<>(Arrays.asList(RED_PUSHED,RED_PUSHER, EMPTY));
+        // 1 - On check devant
+        if(isInBoard(row-direction, col) && isInBoard(row+direction, col) && board[row-direction][col]==pusher && board[row+direction][col]==EMPTY) {
+            return false;
+        } else if (isInBoard(row-direction, col-1) && isInBoard(row+direction, col+1) && board[row-direction][col-1]==pusher && freeDiagonalCase.contains(board[row+direction][col-1])) {
+            // 2 - On check d'un coté
+            return false;
+        } else if (isInBoard(row-direction, col+1) && isInBoard(row+direction, col-1) && board[row-direction][col+1]==pusher && freeDiagonalCase.contains(board[row+direction][col+1])) {
+            // 3 - On check de l'autre coté
+            return false;
+        }
+        return true;
+    }
+
+
     public Color pieceArrived() {
         for(int col=0; col<BOARD_SIZE; col++) {
             if(board[0][col] == RED_PUSHER || board[0][col] == RED_PUSHED) {
-                return Color.BLACK;
+                return Color.RED;
             }
             if(board[BOARD_SIZE-1][col] == BLACK_PUSHER || board[BOARD_SIZE-1][col] == BLACK_PUSHED) {
-                return Color.RED;
+                return Color.BLACK;
             }
         }
         return null;
@@ -177,29 +236,29 @@ public class Gameboard {
     }
 
     public void play(Move move) {
-        int piece = this.board[move.getFromRow()][move.getFromCol()];
+        byte piece = this.board[move.getFromRow()][move.getFromCol()];
         this.board[move.getFromRow()][move.getFromCol()] = EMPTY;
         this.board[move.getToRow()][move.getToCol()] = piece;
     }
 
     public Gameboard copy() {
-        int[][] newBoard = new int[8][8];
+        byte[][] newBoard = new byte[8][8];
         for (int row=0; row<BOARD_SIZE; row++) {
             System.arraycopy(board[row], 0, newBoard[row], 0, BOARD_SIZE);
         }
         return new Gameboard(newBoard);
     }
 
-    public int[][] getBoard() {
+    public byte[][] getBoard() {
         return board;
     }
 
     public static Gameboard syncGameboard(String boardString) {
         String[] boardValues = boardString.trim().split(" ");
-        int[][] board = new int[8][8];
-        int x = 0, y = 0;
+        byte[][] board = new byte[8][8];
+        byte x = 0, y = 0;
         for (String value : boardValues) {
-            board[y][x] = Integer.parseInt(value);
+            board[y][x] = Byte.parseByte(value);
             x++;
             if (x == BOARD_SIZE) {
                 x = 0;
@@ -210,8 +269,8 @@ public class Gameboard {
     }
 
     public void printBoard() {
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
+        for (byte i = 0; i < BOARD_SIZE; i++) {
+            for (byte j = 0; j < BOARD_SIZE; j++) {
                 System.out.print(board[i][j] + " ");
             }
             System.out.println();

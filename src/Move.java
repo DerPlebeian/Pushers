@@ -1,30 +1,32 @@
+import java.util.Objects;
+
 public class Move {
 
-    private int fromRow;
-    private int fromCol;
-    private int toRow;
-    private int toCol;
+    private byte fromRow;
+    private byte fromCol;
+    private byte toRow;
+    private byte toCol;
 
-    public Move(int fromRow, int fromCol, int toRow, int toCol) {
+    public Move(byte fromRow, byte fromCol, byte toRow, byte toCol) {
         this.fromRow = fromRow;
         this.fromCol = fromCol;
         this.toRow = toRow;
         this.toCol = toCol;
     }
 
-    public int getFromRow() {
+    public byte getFromRow() {
         return fromRow;
     }
 
-    public int getFromCol() {
+    public byte getFromCol() {
         return fromCol;
     }
 
-    public int getToRow() {
+    public byte getToRow() {
         return toRow;
     }
 
-    public int getToCol() {
+    public byte getToCol() {
         return toCol;
     }
 
@@ -59,10 +61,23 @@ public class Move {
 
     public static Move getMoveFromString(String s) {
         s = s.trim().toUpperCase().replaceAll("[\\s\\-]", ""); // retire espaces et tirets
-        int fromCol = s.charAt(0) - 'A';
-        int fromRow = 8 - Character.getNumericValue(s.charAt(1));
-        int toCol = s.charAt(2) - 'A';
-        int toRow = 8 - Character.getNumericValue(s.charAt(3));
+        byte fromCol = (byte) (s.charAt(0) - 'A');
+        byte fromRow = (byte) (8 - Character.getNumericValue(s.charAt(1)));
+        byte toCol = (byte) (s.charAt(2) - 'A');
+        byte toRow = (byte) (8 - Character.getNumericValue(s.charAt(3)));
         return new Move(fromRow, fromCol, toRow, toCol);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Move move = (Move) obj;
+        return fromRow == move.getFromRow() && fromCol == move.getFromCol() && toRow == move.getToRow() && toCol == move.getToCol();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fromRow, fromCol, toRow, toCol);
     }
 }
