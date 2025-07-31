@@ -1,5 +1,5 @@
 import java.io.*;
-import java.net.*;
+import java.net.Socket;
 
 
 public class Client {
@@ -43,6 +43,7 @@ public class Client {
                     // On génère le meilleur coup
                     Move bestMove = bot.getBestMove(gameboard);
                     gameboard.play(bestMove);
+                    bot.advanceTree(bestMove, gameboard);
                     System.out.println("Bot : " + bestMove);
                     output.write(bestMove.toString().getBytes(),0,bestMove.toString().length());
                     output.flush();
@@ -83,6 +84,7 @@ public class Client {
                     System.out.println("Entrez votre coup : ");
                     Move bestMove = bot.getBestMove(gameboard);
                     gameboard.play(bestMove);
+                    bot.advanceTree(bestMove, gameboard);
                     System.out.println("Bot : " + bestMove);
                     output.write(bestMove.toString().getBytes(),0,bestMove.toString().length());
                     output.flush();

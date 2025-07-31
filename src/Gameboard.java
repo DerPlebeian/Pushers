@@ -122,6 +122,28 @@ public class Gameboard {
         int enemyPushed = color == Color.RED ? BLACK_PUSHED : RED_PUSHED;
         boolean noEnemyLeft = true;
 
+        for (int col = 0; col < BOARD_SIZE; col++) {
+            if (color == Color.RED) {
+                // on est rouge et on est à une case de gagner
+                if(board[1][col] == RED_PUSHER || board[1][col] == RED_PUSHED) {
+                    score += 500;
+                }
+                // on est rouge et le noir est à une case de gagner
+                if (board[6][col] == BLACK_PUSHER || board[6][col] == BLACK_PUSHED) {
+                    score -= 500;
+                }
+            } else {
+                // on est noir et on est à une case de gagner
+                if (board[6][col] == BLACK_PUSHER || board[6][col] == BLACK_PUSHED) {
+                    score += 500;
+                }
+                // on est noir et le rouge est à une case de gagner
+                if (board[1][col] == RED_PUSHER || board[1][col] == RED_PUSHED) {
+                    score -= 500;
+                }
+            }
+        }
+
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 int piece = board[row][col];
@@ -156,7 +178,7 @@ public class Gameboard {
 
     private int evaluateCaptures(int row, int col , int pusher, int pushed, int enemyPusher, int enemyPushed) {
         int PUSHER_POINT = 20;
-        int PUSHED_POINT = 10;
+        int PUSHED_POINT = 5;
 
         int piece = board[row][col];
         int direction = (pusher == RED_PUSHER) ? -1 : 1;

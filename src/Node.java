@@ -16,6 +16,7 @@ public class Node {
         this.color = color;
         this.isMaximizing = isMaximizing;
         this.children = new ArrayList<>();
+        this.score = -11111; // On considère ce score comme le score par défaut, si le score = -11111 alors il n'a pas été défini
     }
 
     public ArrayList<Node> getChildren() {
@@ -45,9 +46,7 @@ public class Node {
     public void setScore(int score) {
         this.score = score;
     }
-    public Color getOpponentColor() {
-        return color == Color.RED ? Color.BLACK : Color.RED;
-    }
+
     public Stack<Move> getPathFromRoot() {
         Stack<Move> path = new Stack<>();
         Node current = this;
